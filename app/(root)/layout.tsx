@@ -6,10 +6,12 @@ import Topbar from '@/components/shared/Topbar';
 import LeftSidebar from '@/components/shared/LeftSidebar';
 import RightSidebar from '@/components/shared/RightSidebar';
 import Bottombar from '@/components/shared/Bottombar';
+import { Metadata } from 'next';
 
-export const metadata = {
+export const metadata : Metadata = {
     title: 'Ota',
-    description: 'Revolutionising the way developers communicate'
+    description: 'Revolutionising the way developers communicate',
+    icons: '/favicon.ico'
 };
 
 const inter = Inter({ subsets: ['latin'] });
@@ -21,7 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode })
             <html lang='en'>
                 <body className={ `${inter.className}`}>
                     <Topbar/>
-                    <main>
+                    <main className='flex flex-row'>
                         <LeftSidebar/>
                             <section className='main-container'>
                                 <div className='w-full max-w-4xl'>

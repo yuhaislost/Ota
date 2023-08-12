@@ -159,3 +159,74 @@
 .comment-form_btn {
   @apply rounded-3xl bg-primary-500 px-8 py-2 !text-small-regular text-light-1 max-xs:w-full !important;
 }
+
+.card-border{
+  background:  rgba(255, 255, 255, 0.2);
+}
+
+.card-border.gloweffect::before{
+  background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.06), transparent 30%);
+  border-radius: inherit;
+  content: "";
+}
+
+.card-border.gloweffect:hover::before{
+  opacity: 1;
+}
+
+.card.gloweffect > .card-content{
+  height: calc(100% - 2px);
+  width: calc(100% - 2px);
+  border-radius: inherit;
+  margin: 1px;
+  background: rgba(25, 25, 25);
+}
+
+.cardglow{
+  background-color: rgba(255, 255, 255, 0.1);
+  position: relative; 
+}
+
+.cardglow.innerglow:hover::before{
+  opacity: 1;
+}
+
+.cardglow:hover::after{
+  opacity: 1;
+}
+
+.cardglow.innerglow::before, .cardglow::after{
+  border-radius: inherit;
+  content: "";
+  position: absolute;
+  height: 100%;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 500ms;
+  pointer-events: none;
+}
+
+.cardglow.innerglow::before{
+  background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.04), transparent 40%);
+  z-index: 3;
+}
+
+.cardglow::after{
+  background: radial-gradient(600px circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.4), transparent 40%);
+  z-index: 1; 
+}
+
+.cardglow > .cardglow-content{
+  background: rgb(23, 23, 23);
+  border-radius: inherit;
+  z-index: 2;
+  width: calc(100% - 2px);
+  height: calc(100% - 2px);
+  margin: 1px !important;
+  position: relative;
+}
+
+
