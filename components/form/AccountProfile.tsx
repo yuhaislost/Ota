@@ -12,12 +12,16 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage
 } from "@/components/ui/form";
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from "@/components/ui/input";
 import Image from 'next/image';
 import { ChangeEvent, useState } from 'react';
 import { isBase64Image } from '@/lib/utils';
+import { useUploadThing } from '@/lib/uploadthing';
+import { updateUser } from '@/lib/actions/user.actions';
+import { usePathname, useRouter } from 'next/navigation';
 
 interface Props{
     user: {
@@ -44,16 +48,34 @@ const AccountProfile = ({user, btnTitle}: Props) => {
     });
 
     const [files, setFiles] = useState<File[]>([]);
+    const { startUpload } = useUploadThing('media');
+
+    const router = useRouter();
+    const pathName = usePathname();
 
       // 2. Define a submit handler.
-    function onSubmit(values: z.infer<typeof userValidation>) {
+    async function onSubmit(values: z.infer<typeof userValidation>) {
         const blob = values.profile_photo;
 
         const hasImageChanged = isBase64Image(blob);
 
         if (hasImageChanged)
         {
-            
+            const imgRes = await startUpload(files);
+
+            if (imgRes && imgRes[0].fileUrl)
+            {
+                values.profile_photo = imgRes[0].fileUrl;
+            }
+        }
+
+        await updateUser(user.id, values.username, values.name, values.bio, values.profile_photo, pathName);
+
+        if (pathName === '/profile/edit')
+        {
+            router.back();
+        } else {
+            router.push('/');
         }
     }
 
@@ -97,6 +119,7 @@ const AccountProfile = ({user, btnTitle}: Props) => {
                         <FormControl className='flex-1 text-base-semibold text-gray-200'>
                             <Input type='file' accept='image/*' placeholder='Upload an image' className='bg-inherit border-none file:py-2 file:px-5 file:rounded-md hover:file:bg-neutral-400 file:transition file:duration-400 file:mr-5 file:text-dark-1 hover:file:!cursor-pointer file:bg-neutral-50 h-full' onChange={(event) => handleImage(event, field.onChange)} />
                         </FormControl>
+                        <FormMessage/>
                     </FormItem>
                 )}
                 />
@@ -109,6 +132,7 @@ const AccountProfile = ({user, btnTitle}: Props) => {
                         <FormControl>
                             <Input type="text" className='account-form_input no-focus text-small-regular' {...field} />
                         </FormControl>
+                        <FormMessage/>
                     </FormItem>
                 )}
                 />
@@ -121,6 +145,7 @@ const AccountProfile = ({user, btnTitle}: Props) => {
                         <FormControl>
                             <Input type="text" className='account-form_input no-focus text-small-regular' {...field} />
                         </FormControl>
+                        <FormMessage/>
                     </FormItem>
                 )}
                 />
@@ -134,6 +159,7 @@ const AccountProfile = ({user, btnTitle}: Props) => {
                             <Textarea rows={5} className='account-form_input !no-focus text-small-regular p-2' {...field} />
                         </FormControl>
                         <FormDescription className='text-[14px] leading-5 text-gray-500'>This is your bio it will be your short introduction to the world! So give it some flare.</FormDescription>
+                        <FormMessage/>
                     </FormItem>
                 )}
                 />
