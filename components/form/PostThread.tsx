@@ -36,7 +36,7 @@ function PostThread({ userId }: {userId: string}){
     });
 
     async function onSubmit(values: z.infer<typeof threadValidation>){
-        await createThread(values.thread, values.accountId, null, pathname);
+        await createThread(values.thread, values.accountId, null, null, pathname);
         router.push('/');
     }
 
