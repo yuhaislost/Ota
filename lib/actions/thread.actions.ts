@@ -1,10 +1,12 @@
 'use server'
 
+import mongoose from "mongoose";
 import { revalidatePath } from "next/cache";
 import Thread from "../models/ThreadModel";
 import { connectToDb } from "../mongoose";
 import User from "../models/UserModel";
 import { ObjectId } from "mongodb";
+import { createActivity } from "./activity.actions";
 
 export async function createThread(text: string, author: string, parentId: string | null, communityId:  string | null, path: string){
     try{
@@ -16,6 +18,11 @@ export async function createThread(text: string, author: string, parentId: strin
             community: null,
             parentId: parentId
         });
+
+        if (parentId)
+        {
+            await createActivity(new mongoose.Types.ObjectId(parentId), null, new mongoose.Types.ObjectId(thread._id), new mongoose.Types.ObjectId(author));
+        }
     
         revalidatePath(path);
     }catch(error: any)
@@ -74,7 +81,7 @@ export async function fetchAllComments(threadId: ObjectId)
     connectToDb();
 
     try{
-        const comments = await Thread.find({parentId: threadId}).sort({createdAt: 'desc'}).populate({path: 'author', model: User, select: '_id id name image'});
+        const comments = await Thread.find({parentId: threadId}).sort({createdAt: 'desc'}).populate({path: 'author', model: User, select: '_id id name profileImage'});
 
         return comments
 
@@ -129,10 +136,28 @@ export async function createCommentThread(threadId: string, commentText: string,
             community: parentThread.community,
             parentId: parentThread._id
         });
+
+        await createActivity(parentThread._id, parentThread.author, comment._id, comment.author);
         
         revalidatePath(path);
 
         return comment;
+
+    }catch(error: any)
+    {
+        throw new Error(`Internal Server Error: ${error.message}`);
+    }
+}
+
+export async function fetchUserThreads(authorId: string)
+{
+    connectToDb();
+
+    try{
+
+        const threads = await Thread.find({author: authorId}).populate('author', '_id id name profileImage', User);
+
+        return threads;
 
     }catch(error: any)
     {

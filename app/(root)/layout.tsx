@@ -1,4 +1,4 @@
-import { ClerkProvider } from '@clerk/nextjs';
+import { ClerkProvider, currentUser } from '@clerk/nextjs';
 import { Inter } from 'next/font/google';
 import React from 'react';
 import '../globals.css';
@@ -7,7 +7,9 @@ import LeftSidebar from '@/components/shared/LeftSidebar';
 import RightSidebar from '@/components/shared/RightSidebar';
 import Bottombar from '@/components/shared/Bottombar';
 import { Metadata } from 'next';
-
+import { fetchUser } from '@/lib/actions/user.actions';
+import { getUnreadCount } from '@/lib/actions/activity.actions';
+import { useState } from 'react';
 export const metadata : Metadata = {
     title: 'Ota',
     description: 'Revolutionising the way developers communicate',
@@ -16,7 +18,7 @@ export const metadata : Metadata = {
 
 const inter = Inter({ subsets: ['latin'] });
 
-export default function RootLayout({ children }: { children: React.ReactNode })
+export default async function RootLayout({ children }: { children: React.ReactNode })
 {
     return(
         <ClerkProvider>

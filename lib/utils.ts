@@ -44,7 +44,7 @@ export function formatThreadCount(count: number): string {
   }
 }
 
-export async function fetchAllCommentsBFS(threadId: mongoose.Types.ObjectId)
+export async function fetchAllCommentsTreeBFS(threadId: mongoose.Types.ObjectId)
 {
     let queue: mongoose.Types.ObjectId[] = [threadId];
     let threadCommentMap = new Map<mongoose.Types.ObjectId, any>(); //adjacency list
@@ -67,4 +67,17 @@ export async function fetchAllCommentsBFS(threadId: mongoose.Types.ObjectId)
     }
 
     return threadCommentMap;
+}
+
+export async function createCommentMap(threadArray: any[])
+{
+  let threadCommentMap = new Map<mongoose.Types.ObjectId, any[]>();
+
+  for (let i = 0; i < threadArray.length; i++)
+  {
+    let comments = await fetchAllComments(threadArray[i]._id);
+    threadCommentMap.set(threadArray[i]._id, comments);
+  }
+  
+  return threadCommentMap;
 }

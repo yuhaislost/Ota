@@ -1,8 +1,8 @@
 import ThreadCard from "@/components/cards/ThreadCard";
 import Comment from "@/components/form/Comment";
-import { fetchAllComments, fetchThreadById } from "@/lib/actions/thread.actions";
+import { fetchThreadById } from "@/lib/actions/thread.actions";
 import { fetchUser } from "@/lib/actions/user.actions";
-import { fetchAllCommentsBFS } from "@/lib/utils";
+import { fetchAllCommentsTreeBFS } from "@/lib/utils";
 import { currentUser } from "@clerk/nextjs";
 import mongoose from 'mongoose';
 import { redirect } from "next/navigation";
@@ -21,10 +21,7 @@ async function Page({ params }:  { params: { id: string}}){
     }
 
     const thread = await fetchThreadById(new mongoose.Types.ObjectId(params.id));
-    const threadCommentMap: any = await fetchAllCommentsBFS(thread._id);
-
-    console.log(threadCommentMap.get(thread._id));
-
+    const threadCommentMap: any = await fetchAllCommentsTreeBFS(thread._id);
 
     return(
         <section className="relative">
@@ -36,8 +33,15 @@ async function Page({ params }:  { params: { id: string}}){
                 />
                 }
             </div>
-            <div className="">
-                <Comment threadId={thread.id} currentUserImg={user.imageUrl} currentUserId={JSON.stringify(userInfo._id)}/>
+            <div className="mt-7">
+                <Comment threadId={thread.id} currentUserImg={userInfo.profileImage} currentUserId={JSON.stringify(userInfo._id)}/>
+            </div>
+            <div className='mt-10'>
+                {
+                    threadCommentMap.get(thread._id).map((comment: any) => (<ThreadCard id={comment.id} key={comment.id} currentUserId={user?.id || ""} parentId={comment.parentId} 
+                    content={comment.text} author={comment.author} community={comment.community} createdAt={comment.createdAt} comments={threadCommentMap.get(comment._id)} isComment="true"
+                    />))
+                }
             </div>
         </section>
     );
